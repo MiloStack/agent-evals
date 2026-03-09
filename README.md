@@ -163,13 +163,18 @@ Use the `agent-evals` GitHub Action to gate PRs and CI runs with the same domain
 steps:
   - uses: actions/checkout@v4
   - name: Run agent-evals
-    uses: MiloStack/agent-evals-marketplace@main
+    uses: MiloStack/agent-evals@v0.1.0
     with:
       path: ./src
       domain: security
       strict: true
 ```
 
+
+## Release
+
+- GitHub release: [`v0.1.0`](https://github.com/MiloStack/agent-evals/releases/tag/v0.1.0)
+- GitHub Pages landing page: https://milostack.github.io/agent-evals/
 
 ## License
 

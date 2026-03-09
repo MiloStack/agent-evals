@@ -369,10 +369,10 @@
         <section class="hero">
             <div class="container">
                 <h1>Stop trusting <span class="highlight">LLM-as-judge</span><br>for specialized code</h1>
-                <p>Domain-specific evaluation framework that catches failures generic judges miss. 50%+ better accuracy on specialized tasks.</p>
+                <p>Domain-specific evaluation for AI-generated code. Ship fewer silent failures across <strong>devops</strong>, <strong>security</strong>, and <strong>performance</strong> workflows — in the CLI or directly in GitHub Actions.</p>
                 <div class="cta-group">
                     <a href="#installation" class="btn btn-primary">Get Started</a>
-                    <a href="https://github.com/MiloStack/agent-evals" class="btn btn-secondary" target="_blank">View on GitHub</a>
+                    <a href="https://github.com/MiloStack/agent-evals/releases/tag/v0.1.0" class="btn btn-secondary" target="_blank">View v0.1.0 Release</a>
                 </div>
             </div>
         </section>
@@ -407,29 +407,29 @@ All checks passed! 5/5</div>
                 <h2>What It Does</h2>
                 <div class="checks-grid">
                     <div class="check-card">
-                        <div class="check-icon">✓</div>
-                        <h3>has-tests</h3>
-                        <p>Ensures code includes test coverage. Generic judges miss incomplete test suites.</p>
+                        <div class="check-icon">D</div>
+                        <h3>DevOps domain</h3>
+                        <p>Catch missing tests, leaked secrets, TODO/FIXME leftovers, oversized files, and weak error handling before merges land.</p>
                     </div>
                     <div class="check-card">
-                        <div class="check-icon">✓</div>
-                        <h3>no-secrets</h3>
-                        <p>Detects leaked API keys, credentials, and sensitive data that LLMs often miss.</p>
+                        <div class="check-icon">S</div>
+                        <h3>Security domain</h3>
+                        <p>Flag insecure HTTP, disabled TLS verification, dangerous shell patterns, weak crypto, and wildcard CORS policies.</p>
                     </div>
                     <div class="check-card">
-                        <div class="check-icon">✓</div>
-                        <h3>no-todo-fixme</h3>
-                        <p>Flags incomplete code with TODO/FIXME comments before it ships.</p>
+                        <div class="check-icon">P</div>
+                        <h3>Performance domain</h3>
+                        <p>Detect innerHTML abuse, blocking sync loops, N+1 query patterns, memory leaks, and DOM thrashing.</p>
                     </div>
                     <div class="check-card">
-                        <div class="check-icon">✓</div>
-                        <h3>file-size</h3>
-                        <p>Validates file sizes stay within performance budgets. Catches bloat early.</p>
+                        <div class="check-icon">CI</div>
+                        <h3>GitHub Action ready</h3>
+                        <p>Run agent-evals in pull requests with path, domain, and strict-mode inputs so CI fails when high-risk output slips through.</p>
                     </div>
                     <div class="check-card">
-                        <div class="check-icon">✓</div>
-                        <h3>error-handling</h3>
-                        <p>Checks for proper exception handling and error recovery patterns.</p>
+                        <div class="check-icon">R</div>
+                        <h3>Versioned release</h3>
+                        <p>Public GitHub release <strong>v0.1.0</strong> is live now, giving early adopters a stable milestone to test and reference.</p>
                     </div>
                 </div>
             </div>
@@ -448,12 +448,19 @@ All checks passed! 5/5</div>
                 <div class="installation">
                     <div class="installation-title">Run Evaluation</div>
                     <div class="install-cmd">
-                        <code>npx agent-evals evaluate ./src</code>
-                        <button onclick="copyCommand('npx agent-evals evaluate ./src')">Copy</button>
+                        <code>npx agent-evals evaluate ./src --domain security --strict</code>
+                        <button onclick="copyCommand('npx agent-evals evaluate ./src --domain security --strict')">Copy</button>
+                    </div>
+                </div>
+                <div class="installation">
+                    <div class="installation-title">Run in GitHub Actions</div>
+                    <div class="install-cmd">
+                        <code>uses: MiloStack/agent-evals@v0.1.0</code>
+                        <button onclick="copyCommand('uses: MiloStack/agent-evals@v0.1.0')">Copy</button>
                     </div>
                 </div>
                 <div style="text-align: center; margin-top: 2rem;">
-                    <p style="color: var(--text-muted); margin-bottom: 1.5rem;">More details on the <a href="https://github.com/MiloStack/agent-evals" class="github-link" target="_blank">GitHub repository →</a></p>
+                    <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Read the <a href="https://github.com/MiloStack/agent-evals/releases/tag/v0.1.0" class="github-link" target="_blank">v0.1.0 release →</a> or browse the <a href="https://github.com/MiloStack/agent-evals" class="github-link" target="_blank">GitHub repository →</a></p>
                 </div>
             </div>
         </section>
