@@ -1,14 +1,5 @@
-import type { CheckResult } from "./checks/types";
-export type { Finding } from "./checks/types";
-export interface EvalReport {
-    timestamp: string;
-    domain: string;
-    inputFiles: number;
-    checks: CheckResult[];
-    overallScore: number;
-    passed: boolean;
-}
-export declare function generateReport(checks: CheckResult[], domain: string, inputFileCount: number): EvalReport;
+import type { CheckResult, EvalReport } from "./types.js";
+export declare function generateReport(domain: string, inputFiles: number, results: CheckResult[]): EvalReport;
 export declare function formatReportJson(report: EvalReport): string;
 export declare function formatReportPretty(report: EvalReport): string;
 //# sourceMappingURL=report.d.ts.map

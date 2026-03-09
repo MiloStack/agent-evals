@@ -1,6 +1,7 @@
-export { parseInput, type EvalInput, type FileInfo } from "./parser";
-export { Check, CheckResult, Finding, HasTestsCheck, NoSecretsCheck, NoTodoFixmeCheck, FileSizeCheck, ErrorHandlingCheck, getChecksForDomain, } from "./checks/index";
-export { generateReport, formatReportJson, formatReportPretty, type EvalReport, } from "./report";
-export { parseCLIArgs, type CLIOptions } from "./cli";
-export declare function evaluate(inputPath: string, domain?: string): Promise<import("./report").EvalReport>;
+export { parseInput } from "./parser.js";
+export { getChecksForDomain } from "./checks/index.js";
+export { generateReport, formatReportJson, formatReportPretty } from "./report.js";
+export type { EvalInput, EvalReport, Check, CheckResult, Finding, FileEntry } from "./types.js";
+import type { EvalReport } from "./types.js";
+export declare function evaluate(target: string, domain?: string): Promise<EvalReport>;
 //# sourceMappingURL=index.d.ts.map

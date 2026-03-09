@@ -1,18 +1,15 @@
-export { parseInput } from "./parser";
-export { Check, CheckResult, Finding, HasTestsCheck, NoSecretsCheck, NoTodoFixmeCheck, FileSizeCheck, ErrorHandlingCheck, getChecksForDomain, } from "./checks/index";
-export { generateReport, formatReportJson, formatReportPretty, } from "./report";
-export { parseCLIArgs } from "./cli";
-// Main evaluation function
-export async function evaluate(inputPath, domain = "devops") {
-    const { parseInput } = await import("./parser");
-    const { getChecksForDomain } = await import("./checks/index");
-    const { generateReport } = await import("./report");
-    const input = await parseInput(inputPath);
+export { parseInput } from "./parser.js";
+export { getChecksForDomain } from "./checks/index.js";
+export { generateReport, formatReportJson, formatReportPretty } from "./report.js";
+import { parseInput } from "./parser.js";
+import { getChecksForDomain } from "./checks/index.js";
+import { generateReport } from "./report.js";
+export async function evaluate(target, domain = "devops") {
+    const input = parseInput(target);
     const checks = getChecksForDomain(domain);
-    if (checks.length === 0) {
+    if (!checks.length)
         throw new Error(`No checks found for domain: ${domain}`);
-    }
-    const results = await Promise.all(checks.map((check) => check.run(input)));
-    return generateReport(results, domain, input.files.length);
+    const results = await Promise.all(checks.map(c => c.run(input)));
+    return generateReport(domain, input.files.length, results);
 }
 //# sourceMappingURL=index.js.map

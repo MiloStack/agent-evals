@@ -1,17 +1,11 @@
-export { Check, CheckResult, Finding } from "./types";
-export { HasTestsCheck, NoSecretsCheck, NoTodoFixmeCheck, FileSizeCheck, ErrorHandlingCheck, } from "./devops";
-import { HasTestsCheck, NoSecretsCheck, NoTodoFixmeCheck, FileSizeCheck, ErrorHandlingCheck, } from "./devops";
-const devopsChecks = [
-    new HasTestsCheck(),
-    new NoSecretsCheck(),
-    new NoTodoFixmeCheck(),
-    new FileSizeCheck(),
-    new ErrorHandlingCheck(),
-];
+import { hasTests } from "./has-tests.js";
+import { noSecrets } from "./no-secrets.js";
+import { noTodoFixme } from "./no-todo-fixme.js";
+import { fileSize } from "./file-size.js";
+import { errorHandling } from "./error-handling.js";
+const ALL = [hasTests, noSecrets, noTodoFixme, fileSize, errorHandling];
 export function getChecksForDomain(domain) {
-    if (domain === "devops") {
-        return devopsChecks;
-    }
-    throw new Error(`Unknown domain: ${domain}`);
+    return ALL.filter(c => c.domain === domain);
 }
+export { hasTests, noSecrets, noTodoFixme, fileSize, errorHandling };
 //# sourceMappingURL=index.js.map

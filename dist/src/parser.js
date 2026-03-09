@@ -1,88 +1,42 @@
-import { readFileSync, readdirSync, statSync } from "fs";
-import { join, resolve, relative, extname } from "path";
-function detectLanguage(filePath) {
-    const ext = extname(filePath).toLowerCase();
-    const languageMap = {
-        ".ts": "typescript",
-        ".tsx": "typescript",
-        ".js": "javascript",
-        ".jsx": "javascript",
-        ".py": "python",
-        ".java": "java",
-        ".go": "go",
-        ".rs": "rust",
-        ".cpp": "cpp",
-        ".c": "c",
-        ".cs": "csharp",
-        ".rb": "ruby",
-        ".php": "php",
-    };
-    return languageMap[ext] || "text";
+import { readFileSync, readdirSync, statSync } from "node:fs";
+import { join, extname } from "node:path";
+const LANG_MAP = {
+    ".ts": "typescript", ".tsx": "typescript", ".js": "javascript", ".jsx": "javascript",
+    ".py": "python", ".rb": "ruby", ".go": "go", ".rs": "rust", ".java": "java",
+    ".sh": "shell", ".bash": "shell", ".yml": "yaml", ".yaml": "yaml", ".json": "json",
+    ".md": "markdown", ".css": "css", ".html": "html", ".sql": "sql", ".tf": "terraform",
+};
+function detectLanguage(p) {
+    if (p.toLowerCase().includes("dockerfile"))
+        return "dockerfile";
+    return LANG_MAP[extname(p).toLowerCase()] ?? "unknown";
 }
-function shouldIgnorePath(filePath) {
-    const ignoredDirs = [
-        "node_modules",
-        ".git",
-        "dist",
-        "build",
-        ".venv",
-        "__pycache__",
-        ".pytest_cache",
-        ".env",
-    ];
-    const parts = filePath.split(/[\\/]/);
-    return parts.some((part) => ignoredDirs.includes(part));
-}
-function readDirectory(dirPath, basePath) {
-    const files = [];
-    const entries = readdirSync(dirPath);
-    for (const entry of entries) {
-        const fullPath = join(dirPath, entry);
-        const relativePath = relative(basePath, fullPath);
-        if (shouldIgnorePath(relativePath)) {
+function collectFiles(dir) {
+    const entries = [];
+    for (const item of readdirSync(dir)) {
+        if (["node_modules", ".git", "dist"].includes(item))
             continue;
-        }
-        const stat = statSync(fullPath);
-        if (stat.isDirectory()) {
-            files.push(...readDirectory(fullPath, basePath));
-        }
+        const full = join(dir, item);
+        const stat = statSync(full);
+        if (stat.isDirectory())
+            entries.push(...collectFiles(full));
         else if (stat.isFile()) {
             try {
-                const content = readFileSync(fullPath, "utf-8");
-                const language = detectLanguage(fullPath);
-                files.push({
-                    path: relativePath,
-                    content,
-                    language,
-                });
+                entries.push({ path: full, content: readFileSync(full, "utf-8"), language: detectLanguage(full) });
             }
-            catch {
-                // Skip files that can't be read (binary, permissions, etc.)
-            }
+            catch { /* skip unreadable */ }
         }
     }
-    return files;
+    return entries;
 }
-export async function parseInput(inputPath, metadata) {
-    const resolvedPath = resolve(inputPath);
-    const stat = statSync(resolvedPath);
-    const files = [];
+export function parseInput(target) {
+    const stat = statSync(target);
     if (stat.isFile()) {
-        const content = readFileSync(resolvedPath, "utf-8");
-        const language = detectLanguage(resolvedPath);
-        const fileName = resolvedPath.split(/[\\/]/).pop() || resolvedPath;
-        files.push({
-            path: fileName,
-            content,
-            language,
-        });
+        const content = readFileSync(target, "utf-8");
+        return { files: [{ path: target, content, language: detectLanguage(target) }] };
     }
-    else if (stat.isDirectory()) {
-        files.push(...readDirectory(resolvedPath, resolvedPath));
-    }
-    return {
-        files,
-        metadata: metadata || {},
-    };
+    if (stat.isDirectory())
+        return { files: collectFiles(target) };
+    throw new Error(`Unsupported target: ${target}`);
 }
 //# sourceMappingURL=parser.js.map

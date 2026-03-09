@@ -1,1 +1,1 @@
-{"version":3,"file":"has-tests.d.ts","sourceRoot":"","sources":["../../../src/checks/has-tests.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,KAAK,EAA0B,MAAM,aAAa,CAAC;AAejE,eAAO,MAAM,QAAQ,EAAE,KAoBtB,CAAC"}
+{"version":3,"file":"has-tests.d.ts","sourceRoot":"","sources":["../../../src/checks/has-tests.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,KAAK,EAA0B,MAAM,aAAa,CAAC;AAGjE,eAAO,MAAM,QAAQ,EAAE,KAYtB,CAAC"}
