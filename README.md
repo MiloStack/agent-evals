@@ -145,6 +145,32 @@ npm run lint       # ESLint
 - [ ] GitHub Actions integration
 - [ ] Web dashboard
 
+## GitHub Action
+
+Use the `agent-evals` GitHub Action to gate PRs and CI runs with the same domain-aware checks that power the CLI. The action is defined in `action.yml` and publishes the compiled code from `dist/src/action.js`. Drop in the workflow below or see `.github/workflows/agent-evals-example.yml` for a runnable template.
+
+### Inputs
+
+| Input | Description | Default |
+| --- | --- | --- |
+| `path` | Path or directory to evaluate | `.` |
+| `domain` | Evaluation domain: `devops`, `security`, or `performance` | `devops` |
+| `strict` | When `true`, fail the job if any check fails | `false` |
+
+### Example usage
+
+```yaml
+steps:
+  - uses: actions/checkout@v4
+  - name: Run agent-evals
+    uses: MiloStack/agent-evals-marketplace@main
+    with:
+      path: ./src
+      domain: security
+      strict: true
+```
+
+
 ## License
 
 MIT

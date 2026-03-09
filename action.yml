@@ -1,0 +1,18 @@
+name: agent-evals
+description: Run the agent-evals CLI to score AI coding agent output inside your workflow.
+inputs:
+  path:
+    description: 'Directory or file to evaluate (defaults to the repository root).'
+    required: false
+    default: '.'
+  domain:
+    description: 'Domain to analyze: devops, security, or performance.'
+    required: false
+    default: 'devops'
+  strict:
+    description: 'Set to true to fail if any check fails (default false).'
+    required: false
+    default: 'false'
+runs:
+  using: 'node18'
+  main: 'dist/src/action.js'

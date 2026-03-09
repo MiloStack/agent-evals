@@ -1,0 +1,17 @@
+name: Agent Evals CI Example
+
+on:
+  push: {}
+  pull_request: {}
+
+jobs:
+  evaluate-agent-output:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run agent-evals action
+        uses: MiloStack/agent-evals-marketplace@main
+        with:
+          path: ./src
+          domain: devops
+          strict: true
