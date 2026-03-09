@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>agent-evals — Stop trusting LLM-as-judge for specialized code</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0a0e27;
+            --bg-secondary: #1a202c;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --border: #334155;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        header {
+            padding: 2rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 1.25rem;
+            letter-spacing: -0.02em;
+        }
+
+        .hero {
+            padding: 6rem 0;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .hero .highlight {
+            color: var(--accent);
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        .cta-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 4rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.875rem 1.75rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+        }
+
+        .btn-secondary:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        .demo-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 2rem;
+            margin-bottom: 4rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .demo-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+        }
+
+        .terminal {
+            background: #000;
+            color: #0f0;
+            padding: 1.5rem;
+            border-radius: 0.375rem;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        .section {
+            padding: 4rem 0;
+            border-top: 1px solid var(--border);
+        }
+
+        .section h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+            text-align: center;
+            letter-spacing: -0.02em;
+        }
+
+        .checks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .check-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 2rem;
+            transition: all 0.2s;
+        }
+
+        .check-card:hover {
+            border-color: var(--accent);
+        }
+
+        .check-icon {
+            display: inline-block;
+            width: 2.5rem;
+            height: 2.5rem;
+            background: var(--accent);
+            border-radius: 0.375rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .check-card h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .check-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .installation {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .installation-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .install-cmd {
+            background: #000;
+            color: #0f0;
+            padding: 1rem;
+            border-radius: 0.375rem;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .install-cmd button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .install-cmd button:hover {
+            background: var(--accent-hover);
+        }
+
+        .waitlist-form {
+            max-width: 500px;
+            margin: 0 auto;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 2rem;
+        }
+
+        .waitlist-form h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .waitlist-form p {
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 0.375rem;
+            color: var(--text);
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .form-group button {
+            width: 100%;
+            padding: 0.875rem;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 0.375rem;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .form-group button:hover {
+            background: var(--accent-hover);
+        }
+
+        .form-group button:disabled {
+            background: var(--text-muted);
+            cursor: not-allowed;
+        }
+
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 3rem 0;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .github-link {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .github-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.25rem;
+            }
+
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            .cta-group {
+                flex-direction: column;
+            }
+
+            .checks-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .install-cmd {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .install-cmd button {
+                margin-top: 0.75rem;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">agent-evals</div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1>Stop trusting <span class="highlight">LLM-as-judge</span><br>for specialized code</h1>
+                <p>Domain-specific evaluation framework that catches failures generic judges miss. 50%+ better accuracy on specialized tasks.</p>
+                <div class="cta-group">
+                    <a href="#installation" class="btn btn-primary">Get Started</a>
+                    <a href="https://github.com/MiloStack/agent-evals" class="btn btn-secondary" target="_blank">View on GitHub</a>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="container">
+                <div class="demo-box">
+                    <div class="demo-title">CLI Output Example</div>
+                    <div class="terminal">$ npx agent-evals evaluate ./src
+
+✓ agent-evals v1.0.0
+
+Evaluating: /Users/dev/project/src
+
+┌────────────────────────┐
+│ Check Results          │
+├────────────────────────┤
+│ ✓ has-tests            │
+│ ✓ no-secrets           │
+│ ✓ no-todo-fixme        │
+│ ✓ file-size            │
+│ ✓ error-handling       │
+└────────────────────────┘
+
+All checks passed! 5/5</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="container">
+                <h2>What It Does</h2>
+                <div class="checks-grid">
+                    <div class="check-card">
+                        <div class="check-icon">✓</div>
+                        <h3>has-tests</h3>
+                        <p>Ensures code includes test coverage. Generic judges miss incomplete test suites.</p>
+                    </div>
+                    <div class="check-card">
+                        <div class="check-icon">✓</div>
+                        <h3>no-secrets</h3>
+                        <p>Detects leaked API keys, credentials, and sensitive data that LLMs often miss.</p>
+                    </div>
+                    <div class="check-card">
+                        <div class="check-icon">✓</div>
+                        <h3>no-todo-fixme</h3>
+                        <p>Flags incomplete code with TODO/FIXME comments before it ships.</p>
+                    </div>
+                    <div class="check-card">
+                        <div class="check-icon">✓</div>
+                        <h3>file-size</h3>
+                        <p>Validates file sizes stay within performance budgets. Catches bloat early.</p>
+                    </div>
+                    <div class="check-card">
+                        <div class="check-icon">✓</div>
+                        <h3>error-handling</h3>
+                        <p>Checks for proper exception handling and error recovery patterns.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="container">
+                <h2>Installation & Usage</h2>
+                <div class="installation">
+                    <div class="installation-title">Global Install</div>
+                    <div class="install-cmd">
+                        <code>npm install -g agent-evals</code>
+                        <button onclick="copyCommand('npm install -g agent-evals')">Copy</button>
+                    </div>
+                </div>
+                <div class="installation">
+                    <div class="installation-title">Run Evaluation</div>
+                    <div class="install-cmd">
+                        <code>npx agent-evals evaluate ./src</code>
+                        <button onclick="copyCommand('npx agent-evals evaluate ./src')">Copy</button>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 2rem;">
+                    <p style="color: var(--text-muted); margin-bottom: 1.5rem;">More details on the <a href="https://github.com/MiloStack/agent-evals" class="github-link" target="_blank">GitHub repository →</a></p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="container">
+                <div class="waitlist-form">
+                    <h3>Join the Waitlist</h3>
+                    <p>Early access, updates, and beta features.</p>
+                    <form onsubmit="handleWaitlist(event)">
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" placeholder="you@example.com" required>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit">Join Waitlist</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Built for teams that demand precision in code quality.</p>
+            <p style="margin-top: 1rem;">
+                <a href="https://github.com/MiloStack/agent-evals" class="github-link" target="_blank">GitHub</a>
+                &nbsp;&nbsp;•&nbsp;&nbsp;
+                <a href="mailto:hello@zenandprofit.com" class="github-link">Contact</a>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        function copyCommand(cmd) {
+            navigator.clipboard.writeText(cmd).then(() => {
+                alert('Copied to clipboard!');
+            });
+        }
+
+        function handleWaitlist(event) {
+            event.preventDefault();
+            const email = document.getElementById('email').value;
+            
+            // Simple mailto approach for now
+            window.location.href = `mailto:hello@zenandprofit.com?subject=agent-evals%20Waitlist%20Signup&body=Email:%20${encodeURIComponent(email)}`;
+        }
+    </script>
+</body>
+</html>
