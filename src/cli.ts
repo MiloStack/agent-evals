@@ -5,7 +5,7 @@ import { formatReportJson, formatReportPretty } from "./report.js";
 async function main() {
   const args = process.argv.slice(2);
   if (!args.length || args.includes("--help") || args.includes("-h")) {
-    console.log(`\n  agent-evals — evaluate AI coding agent outputs\n\n  Usage: agent-evals evaluate <path> [--domain devops] [--format pretty|json] [--strict]\n`);
+    console.log(`\n  agent-evals — evaluate AI coding agent outputs\n\n  Usage: agent-evals evaluate <path> [--domain devops|security] [--format pretty|json] [--strict]\n`);
     process.exit(0);
   }
   if (args[0] !== "evaluate") { console.error(`Unknown command: ${args[0]}`); process.exit(1); }

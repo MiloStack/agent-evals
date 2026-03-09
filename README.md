@@ -12,6 +12,7 @@ Evaluates AI coding agent outputs against domain-specific criteria:
 - **no-todo-fixme** — Flags unresolved TODO/FIXME/HACK/XXX comments left behind.
 - **file-size** — Flags files over 500 lines (indicates monolithic code).
 - **error-handling** — Detects bare catch blocks and swallowed errors.
+- **security** — Tracks insecure HTTP/TLS usage, unsafe shell execution, weak crypto (md5/sha1/ECB), and wildcard CORS headers.
 
 ## Installation
 
@@ -35,8 +36,10 @@ agent-evals evaluate ./src --format json
 # Strict mode: exit 1 if any check fails
 agent-evals evaluate ./src --strict
 
-# Specify domain (currently only 'devops' supported)
+# Specify domain (devops or security)
 agent-evals evaluate ./src --domain devops
+agent-evals evaluate ./src --domain security
+Run with --domain security to check for insecure HTTP/TLS usage, dangerous shell calls, weak cryptography, and wildcard CORS.
 ```
 
 ### Programmatic
