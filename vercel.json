@@ -1,0 +1,6 @@
+{
+  "name": "agent-evals",
+  "buildCommand": "",
+  "outputDirectory": ".",
+  "framework": "static"
+}
