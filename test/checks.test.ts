@@ -9,6 +9,11 @@ import { noDisabledTls } from "../src/checks/no-disabled-tls";
 import { noDangerousShell } from "../src/checks/no-dangerous-shell";
 import { noWeakCrypto } from "../src/checks/no-weak-crypto";
 import { noWildcardCors } from "../src/checks/no-wildcard-cors";
+import { noInnerHtml } from "../src/checks/no-inner-html";
+import { noSyncLoop } from "../src/checks/no-sync-loop";
+import { noNPlusOne } from "../src/checks/no-n-plus-one";
+import { noMemoryLeak } from "../src/checks/no-memory-leak";
+import { noDomThrashing } from "../src/checks/no-dom-thrashing";
 import type { EvalInput } from "../src/types";
 
 const mk = (files: Array<{path:string;content:string;language?:string}>): EvalInput => ({
@@ -145,6 +150,81 @@ describe("no-wildcard-cors", () => {
   });
   it("catches wildcard header", async () => {
     const r = await noWildcardCors.run(mk([{path:"src/server.ts",content:"res.setHeader(\"Access-Control-Allow-Origin\", \"*\");"}]));
+    expect(r.passed).toBe(false);
+  });
+});
+
+describe("no-inner-html", () => {
+  it("passes when using textContent", async () => {
+    const r = await noInnerHtml.run(mk([{path:"src/app.tsx",content:"element.textContent = userInput;"}]));
+    expect(r.passed).toBe(true);
+  });
+  it("catches innerHTML assignment", async () => {
+    const r = await noInnerHtml.run(mk([{path:"src/app.tsx",content:"element.innerHTML = userInput;"}]));
+    expect(r.passed).toBe(false);
+  });
+  it("catches jQuery .html()", async () => {
+    const r = await noInnerHtml.run(mk([{path:"src/app.js",content:"$('#div').html(userInput);"}]));
+    expect(r.passed).toBe(false);
+  });
+});
+
+describe("no-sync-loop", () => {
+  it("passes async code", async () => {
+    const r = await noSyncLoop.run(mk([{path:"src/api.ts",content:"const data = await fetch('/api');"}]));
+    expect(r.passed).toBe(true);
+  });
+  it("catches sync file read in loop", async () => {
+    const r = await noSyncLoop.run(mk([{path:"src/process.ts",content:"for (const f of files) { fs.readFileSync(f); }"}]));
+    expect(r.passed).toBe(false);
+  });
+  it("catches forEach with execSync", async () => {
+    const r = await noSyncLoop.run(mk([{path:"src/batch.ts",content:"files.forEach(f => execSync(f));"}]));
+    expect(r.passed).toBe(false);
+  });
+});
+
+describe("no-n-plus-one", () => {
+  it("passes batch queries", async () => {
+    const r = await noNPlusOne.run(mk([{path:"src/db/users.ts",content:"const users = await db.query('SELECT * FROM users');"}]));
+    expect(r.passed).toBe(true);
+  });
+  it("catches query in loop", async () => {
+    const r = await noNPlusOne.run(mk([{path:"src/db/users.ts",content:"for (const id of ids) { const user = await db.find(id); }"}]));
+    expect(r.passed).toBe(false);
+  });
+  it("catches .map() with async queries", async () => {
+    const r = await noNPlusOne.run(mk([{path:"src/db/users.ts",content:"const results = ids.map(id => db.find(id));"}]));
+    expect(r.passed).toBe(false);
+  });
+});
+
+describe("no-memory-leak", () => {
+  it("passes with proper cleanup", async () => {
+    const r = await noMemoryLeak.run(mk([{path:"src/stream.ts",content:"const stream = fs.createReadStream(f); stream.on('end', () => stream.close());"}]));
+    expect(r.passed).toBe(true);
+  });
+  it("catches unclosed stream", async () => {
+    const r = await noMemoryLeak.run(mk([{path:"src/stream.ts",content:"const stream = fs.createReadStream(f);"}]));
+    expect(r.passed).toBe(false);
+  });
+  it("catches setInterval without clear", async () => {
+    const r = await noMemoryLeak.run(mk([{path:"src/timer.ts",content:"setInterval(() => { }, 1000);"}]));
+    expect(r.passed).toBe(false);
+  });
+  it("catches unclosed DB connection", async () => {
+    const r = await noMemoryLeak.run(mk([{path:"src/db.ts",content:"const conn = await pool.connect();"}]));
+    expect(r.passed).toBe(false);
+  });
+});
+
+describe("no-dom-thrashing", () => {
+  it("passes with cached elements", async () => {
+    const r = await noDomThrashing.run(mk([{path:"src/app.tsx",content:"const el = document.querySelector('.x'); el.style.color = 'red';"}]));
+    expect(r.passed).toBe(true);
+  });
+  it("catches DOM manipulation in loop", async () => {
+    const r = await noDomThrashing.run(mk([{path:"src/app.tsx",content:"for (const item of items) { document.body.innerHTML += item; }"}]));
     expect(r.passed).toBe(false);
   });
 });

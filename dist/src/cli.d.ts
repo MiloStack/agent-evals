@@ -1,3 +1,3 @@
 #!/usr/bin/env node
-export {};
+import "./checks/index.js";
 //# sourceMappingURL=cli.d.ts.map

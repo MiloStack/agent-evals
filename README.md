@@ -7,12 +7,27 @@ Domain-specific evaluation framework for AI coding agent outputs.
 ## What it does
 
 Evaluates AI coding agent outputs against domain-specific criteria:
+
+### DevOps Checks
 - **has-tests** — Does the output include test files? Scores based on test-to-source ratio.
 - **no-secrets** — Scans for hardcoded API keys, AWS credentials, passwords, tokens.
 - **no-todo-fixme** — Flags unresolved TODO/FIXME/HACK/XXX comments left behind.
 - **file-size** — Flags files over 500 lines (indicates monolithic code).
 - **error-handling** — Detects bare catch blocks and swallowed errors.
-- **security** — Tracks insecure HTTP/TLS usage, unsafe shell execution, weak crypto (md5/sha1/ECB), and wildcard CORS headers.
+
+### Security Checks
+- **no-insecure-http** — Flags non-HTTPS URLs (insecure HTTP).
+- **no-disabled-tls** — Detects disabled TLS verification.
+- **no-dangerous-shell** — Catches shell command injection vulnerabilities.
+- **no-weak-crypto** — Detects weak cryptography (MD5, SHA1, ECB mode).
+- **no-wildcard-cors** — Flags wildcard CORS policies.
+
+### Performance Checks
+- **no-inner-html** — Detects dangerous innerHTML usage (DOM XSS vector).
+- **no-sync-loop** — Catches blocking synchronous operations in loops.
+- **no-n-plus-one** — Detects N+1 database query patterns.
+- **no-memory-leak** — Finds unclosed streams, missing cleanup.
+- **no-dom-thrashing** — Catches inefficient DOM manipulation patterns.
 
 ## Installation
 
@@ -36,10 +51,14 @@ agent-evals evaluate ./src --format json
 # Strict mode: exit 1 if any check fails
 agent-evals evaluate ./src --strict
 
-# Specify domain (devops or security)
+# Specify domain (devops, security, or performance)
 agent-evals evaluate ./src --domain devops
 agent-evals evaluate ./src --domain security
+agent-evals evaluate ./src --domain performance
+
 Run with --domain security to check for insecure HTTP/TLS usage, dangerous shell calls, weak cryptography, and wildcard CORS.
+
+Run with --domain performance to check for DOM XSS, blocking sync loops, N+1 queries, memory leaks, and DOM thrashing.
 ```
 
 ### Programmatic
@@ -109,18 +128,19 @@ npm run lint       # ESLint
 
 ## Status
 
-✅ **Core engine complete** — Parser, 5 devops checks, report generator, CLI all working.
+✅ **Core engine complete** — Parser, 15 checks across 3 domains, report generator, CLI all working.
 - [x] Project scaffold (package.json, tsconfig, eslint, vitest)
 - [x] Input parser with tests
 - [x] Check interface + runner with tests
-- [x] 5 initial devops checks (has-tests, no-secrets, no-todo-fixme, file-size, error-handling)
+- [x] 5 DevOps checks (has-tests, no-secrets, no-todo-fixme, file-size, error-handling)
+- [x] 5 Security checks (no-insecure-http, no-disabled-tls, no-dangerous-shell, no-weak-crypto, no-wildcard-cors)
+- [x] 5 Performance checks (no-inner-html, no-sync-loop, no-n-plus-one, no-memory-leak, no-dom-thrashing)
 - [x] Report generator with tests
 - [x] CLI entry point with tests
-- [x] All tests passing (48 tests)
+- [x] All tests passing (46 tests)
 - [x] npm run build succeeds
 
 **Next steps:**
-- [ ] Additional domains (security, performance)
 - [ ] Custom check plugins
 - [ ] GitHub Actions integration
 - [ ] Web dashboard
