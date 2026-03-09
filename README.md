@@ -176,6 +176,10 @@ steps:
 - GitHub release: [`v0.1.0`](https://github.com/MiloStack/agent-evals/releases/tag/v0.1.0)
 - GitHub Pages landing page: https://milostack.github.io/agent-evals/
 
+## Marketplace readiness
+
+The GitHub Action metadata now includes Marketplace branding (`icon: shield`, `color: blue`) so the repo is ready for the GitHub-side listing flow once we choose to publish it there.
+
 ## License
 
 MIT

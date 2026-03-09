@@ -1,5 +1,9 @@
 name: agent-evals
+author: Milo Stack
 description: Run the agent-evals CLI to score AI coding agent output inside your workflow.
+branding:
+  icon: shield
+  color: blue
 inputs:
   path:
     description: 'Directory or file to evaluate (defaults to the repository root).'
